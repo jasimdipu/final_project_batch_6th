@@ -5,6 +5,7 @@ import shutil
 import datetime
 from os import listdir
 import re
+import pandas as pd
 
 
 class RawDataValidation:
@@ -197,3 +198,28 @@ class RawDataValidation:
             file.close()
 
             raise e
+
+    def validateColumnLength(self, numberOfColumns):
+        try:
+            f = open('Training_Logs/columnValidationLog.txt', 'a+')
+            self.logger.log(f, "Column length validation started")
+            for file in listdir("Training_Raw_Files_Validated/Good_Raw/"):
+                csv = pd.read_csv("Training_Raw_Files_Validated/Good_Raw/" + file)
+                if csv.shape[1] == numberOfColumns:
+                    pass
+                else:
+                    shutil.move("Training_Raw_Files_Validated/Good_Raw/", "Training_Raw_Files_Validated/Bad_Raw/")
+                    self.logger.log(f, "Invalid column length for the file!! File moved to the bad folder" % file)
+                self.logger.log(f, "Length validation completed")
+        except OSError as e:
+            f = open("Training_Logs/columnValidationLog.txt", "a+")
+            self.logger.log(f, "Error Occured while moving the file :: %s" % e)
+            f.close()
+            raise e
+        except Exception as e:
+            f = open("Training_Logs/columnValidationLog.txt", "a+")
+            self.logger.log(f, "Error Occured while moving the file :: %s" % e)
+            f.close()
+            raise e
+
+
